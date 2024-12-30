@@ -1,34 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet Connection</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TON CONNECT WALLET</title>
     <link rel="stylesheet" href="material/css/w.css">
-</head>
+  </head>
+<style>
+  body{
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-area: 4em;
+    justify-content: center;
+    overflow: hidden;
+  }
+  button{
+    width: 200px;
+    height: 50px;
+    border-radius: 5px;
+    p{
+      color: #fff;
+    }
+  }
+</style>
+  <body>
+    <button onclick="connectWallet()">CONNECT WALLET</button>
+  </body>
+  <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+  <script>
+    const connector = new TonConnectSDK.TonConnect({
+      manifestUrl:
+        "https://raw.githubusercontent.com/nuex001/Tonkeepermanifest/main/tonconnect-manifest.json",
+    });
+    const connectWallet = () => {
+      const walletConnectionSource = {
+        universalLink: "https://app.tonkeeper.com/ton-connect",
+        bridgeUrl: "https://bridge.tonapi.io/bridge",
+      };
 
-<body>
+      const universalLink = connector.connect(walletConnectionSource);
+      window.open(universalLink, "_blank");
+    };
+    connector.onStatusChange((status) => {
+      console.log("Connection status changed:", status);
+      if (status) {
+        const rawAddress = status.account.address;
+        // Convert raw address to base64 format
+        const apiUrl = `https://toncenter.com/api/v2/packAddress?address=${encodeURIComponent(
+          rawAddress
+        )}`;
+        fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.ok) {
+              console.log("Packed Address:", data.result);
+            } else {
+              console.error("Error:", data);
+            }
+          })
+          .catch((error) => console.error("Fetch Error:", error));
 
-    <!-- Open Wallet Pop-up Button -->
-    <button id="openModalBtn" class="open-button">Connect Wallet</button>
-   
-  
-    <!-- Modal Window -->
-    <div id="walletModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Connect Your Wallet</h2>
-            <p>Please connect your Wallet to continue.</p>
-
-            <div class="wallet-options">
-                <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
-                <button id="cancelWallet" class="cancel-btn">Cancel</button>
-            </div>
-
-            <div id="statusMessage" class="status"></div>
-        </div>
-    </div>
-
-    <script src="material/js/w.js"></script>
-</body>
+        // Display formatted address in the UI
+        document.body.innerHTML += `<p>Connected Wallet Address: ${base64Address}</p>`;
+      }
+    });
+  </script>
 </html>
