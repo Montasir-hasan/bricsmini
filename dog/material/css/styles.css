@@ -88,3 +88,7 @@ h1, h2, p {
 .hidden {
     display: none;
 }
+.select-none:active{
+    opacity: 0.8;
+    transform: scale(1.02);
+}
