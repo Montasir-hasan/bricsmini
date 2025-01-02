@@ -83,3 +83,35 @@ setInterval(()=> {
         body.querySelector('.progress').style.width = `${(100 * power) / total}%`;
     }
 }, 1000);
+document.addEventListener("DOMContentLoaded", () => {
+    // Get all elements with name="qty"
+    const qtyElements = document.querySelectorAll('[name="qty"]');
+
+    // Reference to the total display div
+    const totalDisplay = document.getElementById('totall');
+
+    // Function to calculate and update the total
+    function updateTotal() {
+        let total = 0;
+
+        // Loop through each qty element and sum the values
+        qtyElements.forEach((element) => {
+            const value = parseFloat(element.textContent) || 0; // Parse text content to a number
+            total += value;
+        });
+
+        // Update the total display
+        totalDisplay.textContent = total;
+    }
+
+    // Initialize MutationObserver to track changes to qty elements
+    const observer = new MutationObserver(updateTotal);
+
+    // Observe each qty element for changes
+    qtyElements.forEach((element) => {
+        observer.observe(element, { characterData: true, subtree: true, childList: true });
+    });
+
+    // Initial total calculation
+    updateTotal();
+});
