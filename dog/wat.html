@@ -9,7 +9,7 @@
 <body style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
 
     <h2>Connect Your Wallet</h2>
-    <p>Connect your Trust Wallet or MetaMask to provide your BNB address!</p>
+    <p>Connect your MetaMask or Trust Wallet to provide your BNB address!</p>
 
     <!-- Connect Button -->
     <button id="connectButton" class="btn btn-primary" style="font-size: 18px; padding: 10px 20px;">Connect Wallet</button>
@@ -20,33 +20,30 @@
         <p id="walletAddress" style="font-size: 18px; color: green;"></p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script>
         async function connectWallet() {
             let provider;
 
-            // Detect MetaMask (or browser wallet)
-            if (typeof window.ethereum !== 'undefined') {
+            // Detect provider (MetaMask or Trust Wallet)
+            if (window.ethereum) {
                 provider = window.ethereum;
-            }
-            // Detect Trust Wallet (on mobile browsers)
-            else if (typeof window.web3 !== 'undefined') {
+            } else if (window.web3 && window.web3.currentProvider) {
                 provider = window.web3.currentProvider;
-            }
-            // If no wallet is detected
-            else {
-                alert('Please install MetaMask or Trust Wallet to continue!');
+            } else {
+                alert('Please install MetaMask or Trust Wallet to continue.');
                 return;
             }
 
             try {
-                // Request wallet connection
-                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                // Request account access
+                await provider.enable();
+                const web3 = new Web3(provider);
+                const accounts = await web3.eth.getAccounts();
                 const walletAddress = accounts[0];
 
-                // Check if connected to Binance Smart Chain
-                const chainId = await provider.request({ method: 'eth_chainId' });
-                if (chainId !== '0x38') {
+                // Check if connected to Binance Smart Chain (BSC)
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 56) {
                     alert('Please switch your wallet to Binance Smart Chain (BSC)!');
                     return;
                 }
@@ -55,16 +52,18 @@
                 document.getElementById('walletInfo').style.display = 'block';
                 document.getElementById('walletAddress').innerText = walletAddress;
 
-                // Log wallet address (or send it to your backend)
+                // Log wallet address (you can send this to your backend)
                 console.log('Connected BNB wallet address:', walletAddress);
             } catch (error) {
                 console.error('Connection error:', error);
-                alert('Connection failed. Please try again.');
+                alert('Failed to connect wallet. Please try again.');
             }
         }
 
         document.getElementById('connectButton').addEventListener('click', connectWallet);
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 
 </body>
 </html>
