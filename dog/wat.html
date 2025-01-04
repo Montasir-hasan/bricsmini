@@ -22,42 +22,48 @@
 
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script>
-        document.getElementById('connectButton').addEventListener('click', async () => {
+        async function connectWallet() {
+            let provider;
+
+            // Detect MetaMask (or browser wallet)
             if (typeof window.ethereum !== 'undefined') {
-                try {
-                    // Request account access
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    const walletAddress = accounts[0];
-
-                    // Check if the wallet is connected to Binance Smart Chain (BSC)
-                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                    if (chainId !== '0x38') {
-                        alert('Please switch your wallet to Binance Smart Chain (BSC)!');
-                        return;
-                    }
-
-                    // Display wallet address
-                    document.getElementById('walletInfo').style.display = 'block';
-                    document.getElementById('walletAddress').innerText = walletAddress;
-
-                    // Log the wallet address (you can send it to your backend here)
-                    console.log('Connected BNB wallet address:', walletAddress);
-
-                    // Optional: Send the address to your server using a POST request
-                    await fetch('https://your-server-url.com/collect-wallet-address', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ walletAddress: walletAddress })
-                    });
-
-                    alert('BNB wallet address collected successfully!');
-                } catch (error) {
-                    console.error('User rejected the connection request or there was an error:', error);
-                }
-            } else {
-                alert('MetaMask or Trust Wallet is not installed. Please install it to continue.');
+                provider = window.ethereum;
             }
-        });
+            // Detect Trust Wallet (on mobile browsers)
+            else if (typeof window.web3 !== 'undefined') {
+                provider = window.web3.currentProvider;
+            }
+            // If no wallet is detected
+            else {
+                alert('Please install MetaMask or Trust Wallet to continue!');
+                return;
+            }
+
+            try {
+                // Request wallet connection
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                const walletAddress = accounts[0];
+
+                // Check if connected to Binance Smart Chain
+                const chainId = await provider.request({ method: 'eth_chainId' });
+                if (chainId !== '0x38') {
+                    alert('Please switch your wallet to Binance Smart Chain (BSC)!');
+                    return;
+                }
+
+                // Display wallet address
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('walletAddress').innerText = walletAddress;
+
+                // Log wallet address (or send it to your backend)
+                console.log('Connected BNB wallet address:', walletAddress);
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Connection failed. Please try again.');
+            }
+        }
+
+        document.getElementById('connectButton').addEventListener('click', connectWallet);
     </script>
 
 </body>
