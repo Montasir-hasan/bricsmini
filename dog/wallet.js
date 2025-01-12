@@ -1,3 +1,29 @@
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
+const user = Telegram.WebApp.initDataUnsafe.user;
+
+if (user) {
+  console.log(`User ID: ${user.id}`);
+  console.log(`Username: ${user.username}`);
+  console.log(`First Name: ${user.first_name}`);
+}
+async function connectWallet() {
+  if (window.ethereum) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
+    const walletAddress = accounts[0];
+
+    // Send data back to the bot
+    Telegram.WebApp.sendData(`Connected Wallet: ${walletAddress}`);
+  } else {
+    alert("Please install MetaMask!");
+  }
+}
+
+
+
+
+
 import {
     EthereumClient,
     w3mConnectors,
