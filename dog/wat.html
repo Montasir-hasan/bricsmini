@@ -10,6 +10,23 @@
   <div class="container">
     <h1>Connect Your Wallet</h1>
     <p>Choose your wallet to connect</p>
+ <div class="wallet-buttons">
+      <button class="wallet-button" id="metamask">
+        <img src="https://metamask.io/favicon.ico" alt="MetaMask">
+        <span>MetaMask</span>
+      </button>
+    </div>
+
+    <div id="walletInfo" class="hidden">
+      <h2>Wallet Connected</h2>
+      <p><strong>Address:</strong> <span id="walletAddress"></span></p>
+      <p><strong>BRICS Balance:</strong> <span id="bricsBalance"></span></p>
+    </div>
+
+    <div class="footer">
+      <p>Powered by BRICS Pay</p>
+    </div>
+  </div>
 
     <div class="wallet-buttons">
       <button class="wallet-button" id="tonkeeper">
