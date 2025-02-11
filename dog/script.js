@@ -31,14 +31,14 @@ let userAddress;
 
 // Connect MetaMask
 document.getElementById('metamask').addEventListener('click', async () => {
-  if (typeof window.ethereum !== 'undefined') {
+  if (typeof window.ethereum !== 'undefined' || typeof window.web3 !== 'undefined') {
     try {
+      // Use MetaMask's provider
+      web3 = new Web3(window.ethereum || window.web3.currentProvider);
+
       // Request account access
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       userAddress = accounts[0];
-
-      // Initialize Web3
-      web3 = new Web3(window.ethereum);
 
       // Display wallet address
       document.getElementById('walletAddress').innerText = userAddress;
@@ -61,7 +61,6 @@ document.getElementById('metamask').addEventListener('click', async () => {
     alert('MetaMask is not installed. Please install it to connect your wallet.');
   }
 });
-
 
 // Initialize TON Connect
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
