@@ -1,117 +1,113 @@
 const body = document.body;
 const image = body.querySelector('#coin');
 const h1 = body.querySelector('h1');
+const powerElement = body.querySelector('#power');
+const totalElement = body.querySelector('#total');
+const progressElement = body.querySelector('.progress');
+const qtyElements = document.querySelectorAll('[name="qty"]');
+const totalDisplay = document.getElementById('totall');
 
-let coins = localStorage.getItem('coins');
-let total = localStorage.getItem('total');
-let power = localStorage.getItem('power');
-let count = localStorage.getItem('count')
+// Helper functions for localStorage
+const getLocalStorage = (key, defaultValue) => {
+    const value = localStorage.getItem(key);
+    return value !== null ? value : defaultValue;
+};
 
-if(coins == null){
-    localStorage.setItem('coins' , '0');
-    h1.textContent = '0';
-}else{
-    h1.textContent = Number(coins).toLocaleString();
-}
+const setLocalStorage = (key, value) => {
+    localStorage.setItem(key, value);
+};
 
-if(total == null){
-    localStorage.setItem('total' , '500')
-    body.querySelector('#total').textContent = '/500';
-}else {
-    body.querySelector('#total').textContent = `/${total}`;
-}
+// Initialize values
+let coins = getLocalStorage('coins', '0');
+let total = getLocalStorage('total', '500');
+let power = getLocalStorage('power', '500');
+let count = getLocalStorage('count', '1');
 
+h1.textContent = Number(coins).toLocaleString();
+totalElement.textContent = `/${total}`;
+powerElement.textContent = power;
 
-if(power == null){
-    localStorage.setItem('power' , '500');
-    body.querySelector('#power').textContent = '500';
-}else{
-    body.querySelector('#power').textContent = power;
-}
+// Handle coin click
+const handleCoinClick = (e) => {
+    const { offsetX: x, offsetY: y } = e;
 
+    // Vibrate device
+    if (navigator.vibrate) navigator.vibrate(5);
 
-if(count == null){
-    localStorage.setItem('count' , '1')
-}
+    // Update coins and power
+    updateCoinsAndPower();
 
-image.addEventListener('click' , (e)=> {
+    // Apply animation
+    applyAnimation(x, y);
 
-    let x = e.offsetX;
-    let y = e.offsetY;
+    // Update progress bar
+    updateProgressBar();
+};
 
+const updateCoinsAndPower = () => {
+    let coins = getLocalStorage('coins', '0');
+    let power = getLocalStorage('power', '500');
 
-    navigator.vibrate(5);
-
-    coins = localStorage.getItem('coins');
-    power = localStorage.getItem('power');
-    
-    if(Number(power) > 0){
-        localStorage.setItem('coins' , `${Number(coins) + 1}`);
+    if (Number(power) > 0) {
+        setLocalStorage('coins', `${Number(coins) + 1}`);
         h1.textContent = `${(Number(coins) + 1).toLocaleString()}`;
-    
-        localStorage.setItem('power' , `${Number(power) - 1}`);
-        body.querySelector('#power').textContent = `${Number(power) - 1}`;
-    } 
 
-    if(x < 150 & y < 150){
+        setLocalStorage('power', `${Number(power) - 1}`);
+        powerElement.textContent = `${Number(power) - 1}`;
+    }
+};
+
+const applyAnimation = (x, y) => {
+    if (x < 150 && y < 150) {
         image.style.transform = 'translate(-0.25rem, -0.25rem) skewY(-10deg) skewX(5deg)';
-    }
-    else if (x < 150 & y > 150){
+    } else if (x < 150 && y > 150) {
         image.style.transform = 'translate(-0.25rem, 0.25rem) skewY(-10deg) skewX(5deg)';
-    }
-    else if (x > 150 & y > 150){
+    } else if (x > 150 && y > 150) {
         image.style.transform = 'translate(0.25rem, 0.25rem) skewY(10deg) skewX(-5deg)';
-    }
-    else if (x > 150 & y < 150){
+    } else if (x > 150 && y < 150) {
         image.style.transform = 'translate(0.25rem, -0.25rem) skewY(10deg) skewX(-5deg)';
     }
 
-
-    setTimeout(()=>{
+    setTimeout(() => {
         image.style.transform = 'translate(0px, 0px)';
     }, 100);
+};
 
-    body.querySelector('.progress').style.width = `${(100 * power) / total}%`;
-});
+const updateProgressBar = () => {
+    const power = getLocalStorage('power', '500');
+    const total = getLocalStorage('total', '500');
+    const progressPercentage = (100 * power) / total;
+    progressElement.style.width = `${progressPercentage}%`;
+};
 
-setInterval(()=> {
-    count = localStorage.getItem('count')
-    power = localStorage.getItem('power');
-    if(Number(total) > power){
-        localStorage.setItem('power' , `${Number(power) + Number(count)}`);
-        body.querySelector('#power').textContent = `${Number(power) + Number(count)}`;
-        body.querySelector('.progress').style.width = `${(100 * power) / total}%`;
+image.addEventListener('click', handleCoinClick);
+
+// Update power every second
+setInterval(() => {
+    const count = getLocalStorage('count', '1');
+    const power = getLocalStorage('power', '500');
+    const total = getLocalStorage('total', '500');
+
+    if (Number(total) > power) {
+        const newPower = Number(power) + Number(count);
+        setLocalStorage('power', `${newPower}`);
+        powerElement.textContent = `${newPower}`;
+        updateProgressBar();
     }
 }, 1000);
-document.addEventListener("DOMContentLoaded", () => {
-    // Get all elements with name="qty"
-    const qtyElements = document.querySelectorAll('[name="qty"]');
 
-    // Reference to the total display div
-    const totalDisplay = document.getElementById('totall');
-
-    // Function to calculate and update the total
-    function updateTotal() {
-        let total = 0;
-
-        // Loop through each qty element and sum the values
-        qtyElements.forEach((element) => {
-            const value = parseFloat(element.textContent) || 0; // Parse text content to a number
-            total += value;
-        });
-
-        // Update the total display
-        totalDisplay.textContent = total;
-    }
-
-    // Initialize MutationObserver to track changes to qty elements
-    const observer = new MutationObserver(updateTotal);
-
-    // Observe each qty element for changes
+// Update total when qty elements change
+const updateTotal = () => {
+    let total = 0;
     qtyElements.forEach((element) => {
-        observer.observe(element, { characterData: true, subtree: true, childList: true });
+        total += parseFloat(element.textContent) || 0;
     });
+    totalDisplay.textContent = total;
+};
 
-    // Initial total calculation
-    updateTotal();
+const observer = new MutationObserver(updateTotal);
+qtyElements.forEach((element) => {
+    observer.observe(element, { characterData: true, subtree: true, childList: true });
 });
+
+updateTotal(); // Initial calculation
