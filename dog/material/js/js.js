@@ -1,29 +1,53 @@
+// Constants
+const TASK_COMPLETED_FLAG = 'true';
+const BALANCE_KEY = 'balance';
 
-let balance = parseInt(localStorage.getItem('balance')) || 0;
+// Initialize balance
+let balance = parseInt(localStorage.getItem(BALANCE_KEY)) || 0;
 
+// Function to complete a task
 function completeTask(reward, taskUrl) {
-   
-    if (localStorage.getItem(taskUrl) === 'true') {
+    if (isTaskCompleted(taskUrl)) {
         alert('You have already completed this task.');
         return;
     }
 
- 
-    balance += reward;
-    updateBalance();
+    // Update balance
+    updateBalance(reward);
 
- 
-    localStorage.setItem(taskUrl, 'true');
+    // Mark task as completed
+    markTaskAsCompleted(taskUrl);
 
- 
-    localStorage.setItem('balance', balance);
-
-
-    window.open(taskUrl, '_blank');
+    // Open task URL in a new tab
+    openTaskUrl(taskUrl);
 }
 
-function updateBalance() {
+// Check if a task is already completed
+function isTaskCompleted(taskUrl) {
+    return localStorage.getItem(taskUrl) === TASK_COMPLETED_FLAG;
+}
+
+// Update balance and save to localStorage
+function updateBalance(reward) {
+    balance += reward;
+    localStorage.setItem(BALANCE_KEY, balance);
     document.getElementById('balance').textContent = balance;
 }
 
-updateBalance();
+// Mark a task as completed in localStorage
+function markTaskAsCompleted(taskUrl) {
+    localStorage.setItem(taskUrl, TASK_COMPLETED_FLAG);
+}
+
+// Open task URL in a new tab
+function openTaskUrl(taskUrl) {
+    window.open(taskUrl, '_blank');
+}
+
+// Initialize balance display on page load
+function initializeBalance() {
+    document.getElementById('balance').textContent = balance;
+}
+
+// Initialize the balance display when the page loads
+initializeBalance();
