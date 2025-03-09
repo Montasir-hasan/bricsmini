@@ -1,27 +1,28 @@
-// Firebase Configuration
+// Initialize Firebase with your configuration
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDWyrP8xniw9kUJUBVCdhEIRs3Mw-BATj0",
+    authDomain: "brics-pay.firebaseapp.com",
+    databaseURL: "https://brics-pay-default-rtdb.firebaseio.com",
+    projectId: "brics-pay",
+    storageBucket: "brics-pay.firebasestorage.app",
+    messagingSenderId: "516647996624",
+    appId: "1:516647996624:web:a881e38c92c3c7cb3ea2d5",
+    measurementId: "G-XPLKCMKF79"
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Get Telegram WebApp User Data
+// Ensure Telegram WebApp is ready
 window.Telegram.WebApp.ready();
 const user = window.Telegram.WebApp.initDataUnsafe.user;
 
 if (user) {
     const userId = user.id;
-    const username = user.username || `User_${userId}`; // Use ID if username is missing
+    const username = user.username || `User_${userId}`; // Use ID if no username
 
-    // Save user data to Firebase
+    // Save user data to Firebase Realtime Database
     firebase.database().ref('users/' + userId).set({
         id: userId,
         username: username,
