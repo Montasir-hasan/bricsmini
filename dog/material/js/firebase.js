@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // Ensure Telegram WebApp is ready
